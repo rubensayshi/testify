@@ -151,6 +151,7 @@ func TestObjectsAreEqualValuesByEqualMethod(t *testing.T) {
 	f1a := Foo{1}
 	f1b := Foo{1}
 	f2 := Foo{2}
+	f1ptr := &Foo{1}
 
 	if !ObjectsAreEqualValues(f1a, f1a) {
 		t.Fail()
@@ -159,6 +160,22 @@ func TestObjectsAreEqualValuesByEqualMethod(t *testing.T) {
 		t.Fail()
 	}
 	if ObjectsAreEqualValues(f1a, f2) {
+		t.Fail()
+	}
+
+	if !ObjectsAreEqualValues(f1ptr, f1ptr) {
+		t.Fail()
+	}
+	if !ObjectsAreEqualValues(f1a, f1ptr) {
+		t.Fail()
+	}
+	if !ObjectsAreEqualValues(f1ptr, f1a) {
+		t.Fail()
+	}
+	if ObjectsAreEqualValues(f1ptr, f2) {
+		t.Fail()
+	}
+	if ObjectsAreEqualValues(f2, f1ptr) {
 		t.Fail()
 	}
 }

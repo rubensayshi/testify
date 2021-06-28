@@ -13,6 +13,64 @@ func (f Foo) Equal(other Foo) bool {
 	return other.id == f.id
 }
 
+type Bar struct {
+	id int
+}
+
+func (f Bar) Equal(other Bar) bool {
+	return other.id == f.id
+}
+
+func TestCheckIsEqualByEqualler(t *testing.T) {
+	f1a := Foo{1}
+	f1b := Foo{1}
+	f2 := Foo{2}
+	f1ptr := &Foo{1}
+
+	if !checkIsEqualByEqualler(f1a, f1a) {
+		t.Fail()
+	}
+	if !checkIsEqualByEqualler(f1a, f1b) {
+		t.Fail()
+	}
+	if checkIsEqualByEqualler(f1a, f2) {
+		t.Fail()
+	}
+
+	if !checkIsEqualByEqualler(f1ptr, f1ptr) {
+		t.Fail()
+	}
+	if !checkIsEqualByEqualler(f1a, f1ptr) {
+		t.Fail()
+	}
+	if !checkIsEqualByEqualler(f1ptr, f1a) {
+		t.Fail()
+	}
+	if checkIsEqualByEqualler(f1ptr, f2) {
+		t.Fail()
+	}
+	if checkIsEqualByEqualler(f2, f1ptr) {
+		t.Fail()
+	}
+}
+
+func TestCheckIsEqualByEquallerNoEq(t *testing.T) {
+	foo := FooNoEq{1}
+
+	if checkIsEqualByEqualler(foo, foo) {
+		t.Fail()
+	}
+}
+
+func TestCheckIsEqualByEquallerNotTheSameType(t *testing.T) {
+	foo := Foo{1}
+	bar := Bar{1}
+
+	if checkIsEqualByEqualler(foo, bar) {
+		t.Fail()
+	}
+}
+
 func TestDetermineIsEqualler(t *testing.T) {
 	fooT := reflect.TypeOf(Foo{})
 	fooTIsEqualler := determineIsEqualler(fooT)
@@ -22,8 +80,8 @@ func TestDetermineIsEqualler(t *testing.T) {
 
 	fooPtrT := reflect.TypeOf(&Foo{})
 	fooPtrTIsEqualler := determineIsEqualler(fooPtrT)
-	if fooPtrTIsEqualler {
-		t.Errorf("*Foo should not be isEqualler")
+	if !fooPtrTIsEqualler {
+		t.Errorf("*Foo should be isEqualler")
 	}
 }
 
@@ -133,5 +191,4 @@ func TestIsEqualler(t *testing.T) {
 	if isEqualler(fooPtrT) {
 		t.Errorf("*Foo should be cached and false")
 	}
-
 }
